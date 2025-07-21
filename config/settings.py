@@ -109,3 +109,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# используем свою кастомную модель
+AUTH_USER_MODEL = 'users.CustomUser'
