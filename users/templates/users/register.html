@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!--<div class="container mt-5">-->
+<!--    <h2>Регистрация</h2>-->
+<!--    <form method="post" enctype="multipart/form-data">-->
+<!--        {% csrf_token %}-->
+<!--        {{ form.as_p }}-->
+
+<!--        {% if form.instance.is_minor %}-->
+<!--        <div class="form-check mb-3">-->
+<!--            {{ form.wants_school_diary }}-->
+<!--            <label class="form-check-label" for="{{ form.wants_school_diary.id_for_label }}">-->
+<!--                Хотите завести дополнительный "Дневник с оценками"?-->
+<!--            </label>-->
+<!--            <small class="form-text text-muted">Доступно только для пользователей младше 18 лет</small>-->
+<!--        </div>-->
+<!--        {% endif %}-->
+
+<!--        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>-->
+<!--    </form>-->
+<!--</div>-->
+<div class="container mt-5">
+    <h2>Регистрация</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </form>
+</div>
+{% endblock %}

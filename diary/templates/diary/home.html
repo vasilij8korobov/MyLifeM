@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Добро пожаловать, {{ user.username }}!</h1>
+    <h1>Мой дневник</h1>
+
+    <!-- Основной дневник -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Личный дневник
+        </div>
+        <div class="card-body">
+            <!-- Контент основного дневника -->
+        </div>
+    </div>
+
+    <!-- Школьный дневник (если есть) -->
+    {% if user.is_minor and hasattr(user, 'schooldiary') %}
+    <div class="alert alert-info mt-4">
+        У вас есть доступ к школьному дневнику
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
