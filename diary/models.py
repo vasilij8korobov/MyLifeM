@@ -12,9 +12,9 @@ class DiaryEntry(models.Model):
         verbose_name = 'Ваш никнейм'
     )
     title = models.CharField(max_length=100, verbose_name = 'Заголовок')
-    text = models.TextField()
+    text = models.TextField(verbose_name = 'Текст')
     date = models.DateTimeField(auto_now_add=True)
-    is_private = models.BooleanField(default=True)
+    is_private = models.BooleanField(default=True, verbose_name = 'Приватно')
 
     class Meta:
         ordering = ['-date']

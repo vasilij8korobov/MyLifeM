@@ -1,0 +1,32 @@
+{% extends "diary/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Мой дневник</h1>
+    <a href="{% url 'diary_create' %}" class="btn btn-primary mb-3">+ Новая запись</a>
+
+    <div class="row">
+        {% for entry in entries %}
+        <div class="col-md-6 mb-4">
+            <div class="card {% if entry.is_private %}border-warning{% endif %}">
+                <div class="card-header d-flex justify-content-between">
+                    <span>{{ entry.title }}</span>
+                    <small class="text-muted">{{ entry.created_at|date:"d.m.Y" }}</small>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ entry.text|truncatechars:100 }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'diary_update' entry.pk %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
+                        <a href="{% url 'diary_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">Записей пока нет</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

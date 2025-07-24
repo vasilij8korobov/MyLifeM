@@ -3,9 +3,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from diary.views import home
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('diary.urls')),
+    path('', home, name='home'),
+    path('diary/', include('diary.urls')),
     path('users/', include('users.urls')),
 ]
 

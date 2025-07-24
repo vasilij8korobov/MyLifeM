@@ -1,25 +1,33 @@
-{% extends 'base.html' %}
+{% extends 'diary/base.html' %}
 
 {% block content %}
 <div class="container">
-    <h1>Добро пожаловать, {{ user.username }}!</h1>
-    <h1>Мой дневник</h1>
+    <h1 class="my-4">Добро пожаловать, {{ user.username }}!</h1>
 
-    <!-- Основной дневник -->
-    <div class="card mb-4">
-        <div class="card-header">
-            Личный дневник
-        </div>
-        <div class="card-body">
-            <!-- Контент основного дневника -->
-        </div>
-    </div>
-
-    <!-- Школьный дневник (если есть) -->
-    {% if user.is_minor and hasattr(user, 'schooldiary') %}
-    <div class="alert alert-info mt-4">
+    {% if show_school_diary %}
+    <div class="alert alert-info">
         У вас есть доступ к школьному дневнику
+        <a href="{% url 'school_diary' %}" class="btn btn-sm btn-info ms-3">Перейти</a>
     </div>
     {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Ваши последние записи</h3>
+        </div>
+        <div class="card-body">
+            {% if diary_entries %}
+                {% for entry in diary_entries %}
+                <div class="mb-3 p-3 border rounded">
+                    <h5>{{ entry.title }}</h5>
+                    <p>{{ entry.text|truncatechars:100 }}</p>
+                    <small class="text-muted">{{ entry.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>У вас пока нет записей. <a href="{% url 'diary_create' %}">Создать первую</a></p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
