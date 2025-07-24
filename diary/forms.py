@@ -10,7 +10,7 @@ class DiaryEntryForm(forms.ModelForm):
             'text': forms.Textarea(attrs={'rows': 5}),
         }
 
-
+# ниже лишнее
 class GradeForm(forms.ModelForm):
     class Meta:
         model = GradeRecord

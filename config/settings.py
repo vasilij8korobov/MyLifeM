@@ -6,13 +6,11 @@ load_dotenv(override=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True if os.getenv('DEBUG') == "True" else False
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -26,7 +24,11 @@ INSTALLED_APPS = [
 
     # мои проги
     'diary',
-    'users'
+    'users',
+
+    # crispy
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
 
 MIDDLEWARE = [
@@ -58,8 +60,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -70,8 +70,6 @@ DATABASES = {
         'PORT': os.getenv('PORT', default='5432'),
     }
 }
-
-
 
 AUTH_PASSWORD_VALIDATORS = [
     # {
@@ -91,8 +89,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
 LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
@@ -100,7 +96,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 
@@ -119,5 +114,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # используем свою кастомную модель
 AUTH_USER_MODEL = 'users.CustomUser'
 
+
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

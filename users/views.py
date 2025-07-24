@@ -18,9 +18,6 @@ def register(request):
             user = form.save()
             print("User created:", user)  # Проверка создания пользователя
 
-            # Создаем школьный дневник, если пользователь младше 18 И выбрал опцию
-            if user.is_minor and form.cleaned_data['wants_school_diary']:
-                SchoolDiary.objects.create(user=user)  # Создаем пустую запись
 
             login(request, user)
             return redirect('home')

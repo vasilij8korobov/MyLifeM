@@ -21,17 +21,7 @@ class CustomUser(AbstractUser):
 
     birth_date = models.DateField(**NULLABLE, verbose_name='Дата рождения')
 
-    wants_school_diary = models.BooleanField(default=False)
 
-    @property
-    def is_minor(self):
-        if not self.birth_date:  # Если дата рождения не указана
-            return False
-        today = date.today()
-        age = today.year - self.birth_date.year - (
-                (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
-        )
-        return age < 18
 
     def clean(self):
         super().clean()

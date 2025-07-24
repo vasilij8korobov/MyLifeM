@@ -14,19 +14,22 @@ class DiaryEntry(models.Model):
     title = models.CharField(max_length=100, verbose_name = 'Заголовок')
     text = models.TextField(verbose_name = 'Текст')
     date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     is_private = models.BooleanField(default=True, verbose_name = 'Приватно')
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['-date', '-updated_at']
         verbose_name = 'Запись дневника'
         verbose_name_plural = 'Записи дневника'
 
     def __str__(self):
         return f'{self.title} (автор: {self.user.username})'
 
+# ниже лишнее
 class SchoolDiary(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     last_updated = models.DateTimeField(auto_now=True)
+
 
 class GradeRecord(models.Model):
     diary = models.ForeignKey(SchoolDiary, on_delete=models.CASCADE)
