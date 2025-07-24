@@ -7,7 +7,22 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 
 from diary.forms import GradeForm, DiaryEntryForm
 from diary.mixins import OwnerRequiredMixin
-from diary.models import DiaryEntry, GradeRecord
+from diary.models import DiaryEntry, FileAttachment, GradeRecord
+
+
+def form_valid(self, form):
+    entry = form.save(commit=False)
+    entry.user = self.request.user
+    entry.save()
+    form.save_m2m()  # Для тегов
+
+    # Обработка файлов
+    files = self.request.FILES.getlist('attachments')
+    for f in files:
+        FileAttachment.objects.create(file=f).save()
+        entry.files.add(FileAttachment.objects.last())
+
+    return super().form_valid(form)
 
 
 def home(request):

@@ -2,3 +2,5 @@ Django==5.2
 psycopg2-binary==2.9.10
 python-dotenv==1.1.0
 pillow==11.2.1
+django-crispy-forms==2.4
+flake8==7.3.0

@@ -40,6 +40,23 @@
                             {{ entry.text|linebreaks }}
                         </div>
                     </div>
+
+                    <div class="entry-content py-3">
+                        {% if entry.files.exists %}
+                        <div class="mt-4">
+                            <h5>Прикреплённые файлы:</h5>
+                            <ul class="list-group">
+                                {% for file in entry.files.all %}
+                                <li class="list-group-item">
+                                    <a href="{{ file.file.url }}" target="_blank">
+                                        <i class="bi bi-file-earmark"></i> {{ file.file.name|slice:"15:" }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="card-footer bg-transparent">
                     <div class="d-flex justify-content-between">
