@@ -1,0 +1,7 @@
+[flake8]
+enable-extensions = G
+max-line-length = 120
+exclude = venv/, migrations/, .git/, __pycache__/, *.md, *.txt
+ignore = E501, W503, E266
+per-file-ignores =
+    */migrations/*:E501
