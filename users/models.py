@@ -29,7 +29,7 @@ class CustomUser(AbstractUser):
             raise ValidationError({'birth_date': 'Дата рождения не может быть в будущем'})
 
     def __str__(self):
-        return f"{self.username} ({self.phone})"
+        return self.username
 
     class Meta:
         verbose_name = 'Пользователь'
