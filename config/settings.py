@@ -1,5 +1,4 @@
 import os
-from email.policy import default
 from pathlib import Path
 from dotenv import load_dotenv
 

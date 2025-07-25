@@ -37,7 +37,6 @@ class DiaryEntry(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     files = models.ManyToManyField('FileAttachment', blank=True)
 
-
     class Meta:
         ordering = ['-date', '-updated_at']
         verbose_name = 'Запись дневника'
