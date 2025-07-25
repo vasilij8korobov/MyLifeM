@@ -73,10 +73,10 @@ jobs:
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/MyLifeM:${{ github.sha }} .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mylifem:${{ github.sha }} .
 
       - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/MyLifeM:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mylifem:${{ github.sha }}
 
 
   deploy:
@@ -95,11 +95,11 @@ jobs:
       - name: Install dependencies on server
         run: |
           ssh -o StrictHostKeyChecking=no -vT ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/MyLifeM:${{ github.sha }}
-          docker stop MyLifeM || true
-          docker rm MyLifeM || true
-          docker run -d --name MyLifeM \
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/mylifem:${{ github.sha }}
+          docker stop mylifem || true
+          docker rm mylifem || true
+          docker run -d --name mylifem \
             -p 80:8000 \
             -e "ENV_VAR=value" \
-            ${{ secrets.DOCKERHUB_USERNAME }}/MyLifeM:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/mylifem:${{ github.sha }}
           EOF
