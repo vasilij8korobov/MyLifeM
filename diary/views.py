@@ -52,7 +52,6 @@ def diary_list(request):
     })
 
 
-# Основной дневник
 class DiaryListView(LoginRequiredMixin, ListView):
     model = DiaryEntry
     template_name = 'diary/diary_list.html'
@@ -92,7 +91,16 @@ class DiaryCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        if self.request.FILES:
+            for uploaded_file in self.request.FILES.getlist('attachments'):
+                file_attachment = FileAttachment.objects.create(
+                    file=uploaded_file,
+                    uploaded_by=self.request.user
+                )
+                self.object.attachments.add(file_attachment)
+
+        return response
 
 
 class DiaryUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):

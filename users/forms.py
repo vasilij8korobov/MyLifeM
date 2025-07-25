@@ -1,8 +1,9 @@
 from datetime import date
-
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser
+from django.core.exceptions import ValidationError
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -56,3 +57,13 @@ class SignUpForm(UserCreationForm):
         cleaned_data = super().clean()
         print("Cleaned data:", cleaned_data)
         return cleaned_data
+
+    def clean_phone(self):
+        phone = self.cleaned_data['phone']
+
+        if not phone:
+            return phone
+
+        if not re.match(r'^\+?[0-9]{10,15}$', phone):
+            raise ValidationError("Введите корректный номер телефона")
+        return phone

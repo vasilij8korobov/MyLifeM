@@ -11,7 +11,21 @@ class FileAttachment(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'png', 'docx'])]
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(  # Добавляем пользователя
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True
+    )
 
+    diary_entry = models.ForeignKey(  # Явная связь с записью
+        'DiaryEntry',
+        on_delete=models.CASCADE,
+        related_name='file_attachments',
+        **NULLABLE,
+    )
+
+    def __str__(self):
+        return f"Файл {self.file.name} к записи {self.diary_entry_id}"
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -19,6 +33,15 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DiaryFileAttachment(models.Model):
+    diary_entry = models.ForeignKey('DiaryEntry', on_delete=models.CASCADE)
+    file_attachment = models.ForeignKey(FileAttachment, on_delete=models.CASCADE)
+    attached_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('diary_entry', 'file_attachment')
 
 
 class DiaryEntry(models.Model):
@@ -35,7 +58,12 @@ class DiaryEntry(models.Model):
     is_private = models.BooleanField(default=True, verbose_name='Приватно')
 
     tags = models.ManyToManyField(Tag, blank=True)
-    files = models.ManyToManyField('FileAttachment', blank=True)
+    attachments = models.ManyToManyField(
+        FileAttachment,
+        through='DiaryFileAttachment',
+        blank=True,
+        related_name='entries'
+    )
 
     class Meta:
         ordering = ['-date', '-updated_at']
