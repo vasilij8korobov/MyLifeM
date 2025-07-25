@@ -77,7 +77,7 @@ class DiaryViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_private_entry_access(self):
+    def test_private_entry_access_other_user(self):
         other_user = User.objects.create_user(username='other@test.com', password='testpass')
         private_entry = DiaryEntry.objects.create(
             user=other_user,
@@ -90,45 +90,6 @@ class DiaryViewTests(TestCase):
             reverse('diary_detail', args=[private_entry.pk])
         )
         self.assertEqual(response.status_code, 404)
-
-    # def test_diary_list_view_queryset(self):
-    #     # Создаём публичные и приватные записи
-    #     public_entry = DiaryEntry.objects.create(
-    #         user=self.user,
-    #         title='Public',
-    #         text='Content',
-    #         is_private=False
-    #     )
-    #     private_entry = DiaryEntry.objects.create(
-    #         user=self.user,
-    #         title='Private',
-    #         text='Secret',
-    #         is_private=True
-    #     )
-    #
-    #     response = self.client.get(reverse('diary_list'))
-    #     self.assertContains(response, public_entry.title)
-    #     self.assertNotContains(response, private_entry.title)
-
-    # def test_entry_create_with_files(self):
-    #     """Тест создания записи с файлами"""
-    #     test_file = SimpleUploadedFile('test.txt', b'file content', content_type="text/plain")
-    #     self.client.force_login(self.user)
-    #     response = self.client.post(reverse('diary_create'), {
-    #         'title': 'С файлом',
-    #         'text': 'Контент',
-    #         'is_private': False,
-    #         'tags': [],
-    #         'attachments': test_file
-    #     },
-    #     format='multipart')
-    #
-    #     self.assertEqual(response.status_code, 302)
-    #     last_entry = DiaryEntry.objects.last()
-    #     self.assertEqual(last_entry.title, 'С файлом')
-    #
-    #     self.assertEqual(last_entry.attachments.count(), 1)
-    #     self.assertTrue(last_entry.attachments.first().file.name.endswith('test.txt'))
 
     def test_private_entry_access(self):
         """Тест доступа к приватным записям"""

@@ -27,6 +27,7 @@ class FileAttachment(models.Model):
     def __str__(self):
         return f"Файл {self.file.name} к записи {self.diary_entry_id}"
 
+
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
     color = models.CharField(max_length=7, default='#007bff')  # HEX цвет
