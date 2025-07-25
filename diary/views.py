@@ -112,4 +112,3 @@ class DiaryDeleteView(LoginRequiredMixin, OwnerRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return DiaryEntry.objects.filter(user=self.request.user)
-

@@ -21,8 +21,6 @@ class CustomUser(AbstractUser):
 
     birth_date = models.DateField(**NULLABLE, verbose_name='Дата рождения')
 
-
-
     def clean(self):
         super().clean()
         if self.birth_date and self.birth_date > date.today():

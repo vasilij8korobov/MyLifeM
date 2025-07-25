@@ -4,8 +4,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
-
-from diary.models import SchoolDiary
 from .forms import SignUpForm
 
 
@@ -17,7 +15,6 @@ def register(request):
             print("Form is valid")  # Проверка валидности
             user = form.save()
             print("User created:", user)  # Проверка создания пользователя
-
 
             login(request, user)
             return redirect('home')
