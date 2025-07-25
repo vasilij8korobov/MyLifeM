@@ -1,6 +1,17 @@
-Django==5.2
-psycopg2-binary==2.9.10
-python-dotenv==1.1.0
-pillow==11.2.1
-django-crispy-forms==2.4
-flake8==7.3.0
+Django==4.2.*  # Стабильная LTS-версия
+django-environ==0.11.2  # Для работы с .env
+psycopg2-binary==2.9.*  # PostgreSQL драйвер
+Pillow==10.0.*  # Обработка изображений
+python-magic==0.4.*  # Определение MIME-типов файлов
+django-cleanup==7.*  # Автоудаление старых файлов
+django-crispy-forms==2.*  # Красивые формы
+crispy-bootstrap5==2023.*  # Шаблоны для Bootstrap 5
+django-widget-tweaks==1.5.*  # Кастомизация виджетов
+django-allauth==0.58.*  # Расширенная регистрация
+argon2-cffi==23.*  # Современный алгоритм хеширования
+drf-yasg==1.21.*  # Swagger-документация
+gunicorn==20.1.*  # Продакшен-сервер
+whitenoise==6.*  # Статика без Nginx
+django-compressor==4.*  # Сжатие статики
+python-dotenv==1.0.*  # Загрузка .env
+flake8==7.0.0

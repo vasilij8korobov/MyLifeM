@@ -5,6 +5,10 @@ from django.db import models
 from config.DRY import NULLABLE
 
 
+class FileAttachment(models.Model):
+    file = models.FileField(upload_to='diary_attachments/')
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
     color = models.CharField(max_length=7, default='#007bff')  # HEX цвет
