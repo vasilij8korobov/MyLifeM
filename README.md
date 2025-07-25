@@ -13,7 +13,7 @@
 ## 🛠 Технологии
 
 - **Backend**: Django 4.2, Python 3.11
-- **Frontend**: Bootstrap 5, jQuery (опционально)
+- **Frontend**: Bootstrap 5
 - **База данных**: PostgreSQL
 - **Инфраструктура**: Docker, Gunicorn, Nginx
 
