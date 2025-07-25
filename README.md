@@ -94,3 +94,6 @@ python manage.py migrate
 
 Запуск приложения:
 python manage.py runserver
+
+## В заключении, MyLifeM - MyLifeManager
+В дальнейшем добавлю больше возможностей, что-бы приложение соответствовало названию
