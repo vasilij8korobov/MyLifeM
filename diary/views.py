@@ -1,13 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 
-from diary.forms import GradeForm, DiaryEntryForm
+from diary.forms import DiaryEntryForm
 from diary.mixins import OwnerRequiredMixin
-from diary.models import DiaryEntry, FileAttachment, GradeRecord
+from diary.models import DiaryEntry, FileAttachment
 
 
 def form_valid(self, form):
