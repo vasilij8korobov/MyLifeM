@@ -1,4 +1,5 @@
 import os
+from email.policy import default
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -66,8 +67,11 @@ DATABASES = {
         'NAME': os.getenv('NAME'),
         'USER': os.getenv('USER'),
         'PASSWORD': os.getenv('PASSWORD'),
-        'HOST': 'db',
+        'HOST': os.getenv('HOST', default='db'),
         'PORT': os.getenv('PORT', default='5432'),
+        'TEST': {
+            'NAME': 'test_mylifem',
+        },
     }
 }
 
@@ -113,7 +117,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # используем свою кастомную модель
 AUTH_USER_MODEL = 'users.CustomUser'
-
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'

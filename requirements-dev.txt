@@ -3,5 +3,6 @@ black==25.1.0
 autopep8==2.3.2
 pytest-django==4.5.*
 pytest-cov==4.*
-pytest-faker
-factory-boy
+Faker==37.4.2
+pytest-faker==2.0.0
+factory-boy==3.3.3

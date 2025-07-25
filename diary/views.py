@@ -19,8 +19,8 @@ def form_valid(self, form):
     # Обработка файлов
     files = self.request.FILES.getlist('attachments')
     for f in files:
-        FileAttachment.objects.create(file=f).save()
-        entry.files.add(FileAttachment.objects.last())
+        attachment = FileAttachment.objects.create(file=f)
+        entry.files.add(attachment)
 
     return super().form_valid(form)
 

@@ -6,7 +6,11 @@ from config.DRY import NULLABLE
 
 
 class FileAttachment(models.Model):
-    file = models.FileField(upload_to='diary_attachments/')
+    file = models.FileField(
+        upload_to='diary_attachments/',
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'png', 'docx'])]
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class Tag(models.Model):
@@ -33,12 +37,6 @@ class DiaryEntry(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     files = models.ManyToManyField('FileAttachment', blank=True)
 
-    class FileAttachment(models.Model):
-        file = models.FileField(
-            upload_to='diary_attachments/',
-            validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'png', 'docx'])]
-        )
-        uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-date', '-updated_at']
