@@ -8,7 +8,8 @@ from config.DRY import NULLABLE
 class FileAttachment(models.Model):
     file = models.FileField(
         upload_to='diary_attachments/',
-        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'png', 'docx'])]
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'png', 'docx'])],
+        verbose_name='Загрузить файл'
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
     uploaded_by = models.ForeignKey(  # Добавляем пользователя
@@ -29,7 +30,7 @@ class FileAttachment(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True, verbose_name = 'Теги')
     color = models.CharField(max_length=7, default='#007bff')  # HEX цвет
 
     def __str__(self):
@@ -58,12 +59,13 @@ class DiaryEntry(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_private = models.BooleanField(default=True, verbose_name='Приватно')
 
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name='Теги')
     attachments = models.ManyToManyField(
         FileAttachment,
         through='DiaryFileAttachment',
         blank=True,
-        related_name='entries'
+        related_name='entries',
+        verbose_name = 'Загрузить файл'
     )
 
     class Meta:
