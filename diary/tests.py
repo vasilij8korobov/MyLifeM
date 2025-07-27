@@ -1,13 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.http import Http404
-from django.test import TestCase, Client, RequestFactory
+from django.test import TestCase, Client
 from django.urls import reverse
 
 from diary.forms import DiaryEntryForm
 from diary.models import DiaryEntry, FileAttachment
-from diary.views import DiaryUpdateView
 
 User = get_user_model()
 
