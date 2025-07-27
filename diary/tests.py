@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
 from django.test import TestCase, Client, RequestFactory
@@ -50,22 +51,38 @@ class MixinTests(TestCase):
             text='Test content'
         )
 
-    def test_owner_required(self):
-        # Проверка для владельца
-        request = self.factory.get('/fake-url')
-        request.user = self.user
+    def test_owner_has_access(self):
+        """Владелец записи должен иметь доступ"""
+        request = self.factory.get('/fake-url/')
+        request.user = self.owner
 
         view = DiaryUpdateView()
         view.request = request
         view.kwargs = {'pk': self.entry.pk}
+
         self.assertTrue(view.test_func())
 
-        # Проверка для другого пользователя
+    def test_other_user_denied(self):
+        """Другой пользователь должен получать PermissionDenied"""
+        request = self.factory.get('/fake-url/')
         request.user = self.other_user
-        self.assertFalse(view.test_func())
 
-        # Проверка для несуществующей записи
-        view.kwargs = {'pk': 999}
+        view = DiaryUpdateView()
+        view.request = request
+        view.kwargs = {'pk': self.entry.pk}
+
+        with self.assertRaises(PermissionDenied):
+            view.test_func()
+
+    def test_nonexistent_entry_404(self):
+        """Несуществующая запись должна возвращать 404"""
+        request = self.factory.get('/fake-url/')
+        request.user = self.owner
+
+        view = DiaryUpdateView()
+        view.request = request
+        view.kwargs = {'pk': 999}  # Несуществующий ID
+
         with self.assertRaises(Http404):
             view.test_func()
 
