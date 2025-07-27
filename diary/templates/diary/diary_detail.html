@@ -45,15 +45,26 @@
                         {% if entry.files.exists %}
                         <div class="mt-4">
                             <h5>Прикреплённые файлы:</h5>
-                            <ul class="list-group">
+                            <div class="list-group">
                                 {% for file in entry.files.all %}
-                                <li class="list-group-item">
-                                    <a href="{{ file.file.url }}" target="_blank">
-                                        <i class="bi bi-file-earmark"></i> {{ file.file.name|slice:"15:" }}
-                                    </a>
-                                </li>
+                                <a href="{{ file.file.url }}" class="list-group-item list-group-item-action"
+                                   target="_blank" download>
+                                    <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi
+                        {% if '.pdf' in file.file.name %}bi-file-earmark-pdf
+                        {% elif '.doc' in file.file.name %}bi-file-earmark-word
+                        {% elif '.xls' in file.file.name %}bi-file-earmark-excel
+                        {% elif '.jpg' in file.file.name or '.png' in file.file.name %}bi-file-image
+                        {% else %}bi-file-earmark{% endif %}">
+                    </i>
+                    {{ file.file.name|cut:"diary_attachments/"|truncatechars:30 }}
+                </span>
+                                        <small class="text-muted">{{ file.file.size|filesizeformat }}</small>
+                                    </div>
+                                </a>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         </div>
                         {% endif %}
                     </div>

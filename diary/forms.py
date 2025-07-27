@@ -45,7 +45,7 @@ class DiaryEntryForm(forms.ModelForm):
                 attachment = FileAttachment.objects.create(
                     file=uploaded_file,
                     uploaded_by=self.instance.user,
-                    diary_entry=instance
+                    entry=instance
                 )
                 instance.attachments.add(attachment)
         return instance

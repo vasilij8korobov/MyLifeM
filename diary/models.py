@@ -18,10 +18,10 @@ class FileAttachment(models.Model):
         null=True
     )
 
-    diary_entry = models.ForeignKey(  # Явная связь с записью
+    entry = models.ForeignKey(  # Явная связь с записью
         'DiaryEntry',
         on_delete=models.CASCADE,
-        related_name='file_attachments',
+        related_name='files',
         **NULLABLE,
     )
 
