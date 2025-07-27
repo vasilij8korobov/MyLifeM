@@ -56,7 +56,7 @@ class DiaryEntry(models.Model):
         through='DiaryFileAttachment',
         blank=True,
         related_name='entries',
-        verbose_name = 'Загрузить файл'
+        verbose_name='Загрузить файл'
     )
     file = models.FileField(upload_to='diary_files/', null=True, blank=True)
 

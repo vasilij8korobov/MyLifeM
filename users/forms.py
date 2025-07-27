@@ -1,9 +1,6 @@
-from datetime import date
-import re
-from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+
 from .models import CustomUser
-from django.core.exceptions import ValidationError
 
 
 class CustomUserCreationForm(UserCreationForm):

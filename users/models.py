@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.db import models
-from datetime import date
+
 from config.DRY import NULLABLE
 
 
