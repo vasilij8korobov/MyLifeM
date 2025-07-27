@@ -26,7 +26,7 @@ class FileAttachment(models.Model):
     )
 
     def __str__(self):
-        return f"Файл {self.file.name} к записи {self.diary_entry_id}"
+        return f"Файл {self.file.name} к записи {self.entry.id}"
 
 
 class DiaryFileAttachment(models.Model):
