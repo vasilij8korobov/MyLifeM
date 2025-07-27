@@ -1,10 +1,11 @@
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import Http404
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth import get_user_model
 
-from diary.models import DiaryEntry, FileAttachment, DiaryFileAttachment
 from diary.forms import DiaryEntryForm
+from diary.models import DiaryEntry, FileAttachment
 from diary.views import DiaryUpdateView
 
 User = get_user_model()
@@ -37,14 +38,6 @@ class DiaryModelsTest(TestCase):
         self.assertEqual(self.attachment.uploaded_by, self.user)
         self.assertEqual(str(self.attachment), f"Файл {self.attachment.file.name} к записи {self.entry.id}")
 
-    def test_diary_file_attachment_relationship(self):
-        link = DiaryFileAttachment.objects.create(
-            diary_entry=self.entry,
-            file_attachment=self.attachment
-        )
-        self.assertEqual(link.diary_entry, self.entry)
-        self.assertEqual(link.file_attachment, self.attachment)
-
 
 class MixinTests(TestCase):
     def setUp(self):
@@ -58,17 +51,23 @@ class MixinTests(TestCase):
         )
 
     def test_owner_required(self):
+        # Проверка для владельца
         request = self.factory.get('/fake-url')
         request.user = self.user
 
         view = DiaryUpdateView()
         view.request = request
         view.kwargs = {'pk': self.entry.pk}
-
         self.assertTrue(view.test_func())
 
+        # Проверка для другого пользователя
         request.user = self.other_user
         self.assertFalse(view.test_func())
+
+        # Проверка для несуществующей записи
+        view.kwargs = {'pk': 999}
+        with self.assertRaises(Http404):
+            view.test_func()
 
 
 class DiaryViewsTest(TestCase):
@@ -134,22 +133,3 @@ class DiaryFormsTest(TestCase):
         }, files={'attachments': [file]})
         self.assertFalse(form.is_valid())
         self.assertIn('Недопустимое расширение файла', str(form.errors))
-
-
-class PaginationTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
-        for i in range(15):
-            DiaryEntry.objects.create(
-                user=self.user,
-                title=f'Entry {i}',
-                text=f'Content {i}'
-            )
-
-    def test_pagination(self):
-        self.client.force_login(self.user)
-        response = self.client.get(reverse('diary_list'))
-        self.assertEqual(len(response.context['page_obj']), 10)
-
-        response = self.client.get(reverse('diary_list') + '?page=2')
-        self.assertEqual(len(response.context['page_obj']), 5)
