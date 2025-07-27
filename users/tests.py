@@ -60,7 +60,7 @@ class UserFormsTest(TestCase):
             'password2': 'differentpass'
         })
         self.assertFalse(form.is_valid())
-        self.assertIn('Пароли не совпадают', str(form.errors))
+        self.assertIn('Введенные пароли не совпадают', str(form.errors))
 
     def test_signup_form_invalid_email(self):
         form = SignUpForm(data={
@@ -69,4 +69,4 @@ class UserFormsTest(TestCase):
             'password2': 'complexpass123'
         })
         self.assertFalse(form.is_valid())
-        self.assertIn('Введите действительный адрес электронной почты', str(form.errors))
+        self.assertIn('Введите правильный адрес электронной почты', str(form.errors))

@@ -32,9 +32,10 @@ class DiaryModelsTest(TestCase):
         self.assertTrue(self.entry.is_private)
 
     def test_file_attachment_creation(self):
-        self.assertIn('test.pdf', self.attachment.file.name)
+        self.assertTrue(self.attachment.file.name.startswith('diary_attachments/'))
+        self.assertTrue(self.attachment.file.name.endswith('.pdf'))
         self.assertEqual(self.attachment.uploaded_by, self.user)
-        self.assertEqual(str(self.attachment), f"Файл test.pdf к записи {self.entry.id}")
+        self.assertEqual(str(self.attachment), f"Файл {self.attachment.file.name} к записи {self.entry.id}")
 
     def test_diary_file_attachment_relationship(self):
         link = DiaryFileAttachment.objects.create(
@@ -43,6 +44,31 @@ class DiaryModelsTest(TestCase):
         )
         self.assertEqual(link.diary_entry, self.entry)
         self.assertEqual(link.file_attachment, self.attachment)
+
+
+class MixinTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
+        self.other_user = User.objects.create_user(username='other@example.com', password='testpass123')
+        self.entry = DiaryEntry.objects.create(
+            user=self.user,
+            title='Test Entry',
+            text='Test content'
+        )
+
+    def test_owner_required(self):
+        request = self.factory.get('/fake-url')
+        request.user = self.user
+
+        view = DiaryUpdateView()
+        view.request = request
+        view.kwargs = {'pk': self.entry.pk}
+
+        self.assertTrue(view.test_func())
+
+        request.user = self.other_user
+        self.assertFalse(view.test_func())
 
 
 class DiaryViewsTest(TestCase):
@@ -108,17 +134,6 @@ class DiaryFormsTest(TestCase):
         }, files={'attachments': [file]})
         self.assertFalse(form.is_valid())
         self.assertIn('Недопустимое расширение файла', str(form.errors))
-
-
-class MixinTests(TestCase):
-    def test_owner_required(self):
-        factory = RequestFactory()
-        request = factory.get('/fake-url')
-        request.user = self.user
-
-        view = DiaryUpdateView()
-        view.request = request
-        view.kwargs = {'pk': self.entry.pk}
 
 
 class PaginationTests(TestCase):
