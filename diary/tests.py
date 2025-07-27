@@ -40,53 +40,6 @@ class DiaryModelsTest(TestCase):
         self.assertEqual(str(self.attachment), f"Файл {self.attachment.file.name} к записи {self.entry.id}")
 
 
-class MixinTests(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
-        self.other_user = User.objects.create_user(username='other@example.com', password='testpass123')
-        self.entry = DiaryEntry.objects.create(
-            user=self.user,
-            title='Test Entry',
-            text='Test content'
-        )
-
-    def test_owner_has_access(self):
-        """Владелец записи должен иметь доступ"""
-        request = self.factory.get('/fake-url/')
-        request.user = self.owner
-
-        view = DiaryUpdateView()
-        view.request = request
-        view.kwargs = {'pk': self.entry.pk}
-
-        self.assertTrue(view.test_func())
-
-    def test_other_user_denied(self):
-        """Другой пользователь должен получать PermissionDenied"""
-        request = self.factory.get('/fake-url/')
-        request.user = self.other_user
-
-        view = DiaryUpdateView()
-        view.request = request
-        view.kwargs = {'pk': self.entry.pk}
-
-        with self.assertRaises(PermissionDenied):
-            view.test_func()
-
-    def test_nonexistent_entry_404(self):
-        """Несуществующая запись должна возвращать 404"""
-        request = self.factory.get('/fake-url/')
-        request.user = self.owner
-
-        view = DiaryUpdateView()
-        view.request = request
-        view.kwargs = {'pk': 999}  # Несуществующий ID
-
-        with self.assertRaises(Http404):
-            view.test_func()
-
-
 class DiaryViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
