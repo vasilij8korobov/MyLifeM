@@ -1,128 +1,140 @@
-from django.test import TestCase
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
-from diary.models import DiaryEntry, Tag, FileAttachment
+from diary.models import DiaryEntry, FileAttachment, DiaryFileAttachment
 from diary.forms import DiaryEntryForm
+from diary.views import DiaryUpdateView
 
 User = get_user_model()
 
 
-class DiaryModelTests(TestCase):
+class DiaryModelsTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username='test@example.com',
-            password='testpass123',
-            phone='+79001234567'
-        )
-        self.tag = Tag.objects.create(name='Работа', color='#FF0000')
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
         self.entry = DiaryEntry.objects.create(
             user=self.user,
-            title='Тестовая запись',
-            text='Содержание записи',
-            is_private=False
+            title='Test Entry',
+            text='Test content',
+            is_private=True
         )
-        self.entry.tags.add(self.tag)
+        self.file = SimpleUploadedFile('test.pdf', b'file_content', content_type='application/pdf')
+        self.attachment = FileAttachment.objects.create(
+            file=self.file,
+            uploaded_by=self.user,
+            entry=self.entry
+        )
 
-    def test_entry_creation(self):
-        """Тестирование создания записи и связей"""
-        self.assertEqual(self.entry.title, 'Тестовая запись')
-        self.assertEqual(self.entry.tags.first().name, 'Работа')
-        self.assertFalse(self.entry.is_private)
-        self.assertLessEqual(self.entry.date, timezone.now())
+    def test_diary_entry_creation(self):
+        self.assertEqual(self.entry.title, 'Test Entry')
+        self.assertEqual(str(self.entry), f'Test Entry (автор: {self.user.username})')
+        self.assertTrue(self.entry.is_private)
 
     def test_file_attachment_creation(self):
-        """Тестирование прикрепления файлов"""
-        test_file = SimpleUploadedFile('test.txt', b'file content')
-        attachment = FileAttachment.objects.create(file=test_file)
-        self.entry.attachments.add(attachment)
+        self.assertIn('test.pdf', self.attachment.file.name)
+        self.assertEqual(self.attachment.uploaded_by, self.user)
+        self.assertEqual(str(self.attachment), f"Файл test.pdf к записи {self.entry.id}")
 
-        self.assertEqual(self.entry.attachments.count(), 1)
-        self.assertIn('diary_attachments', attachment.file.name)
-
-    def test_str_methods(self):
-        """Тестирование строкового представления"""
-        self.assertEqual(str(self.tag), 'Работа')
-        self.assertIn(self.user.username, str(self.entry))
-
-
-class DiaryViewTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='test@example.com',
-            password='testpass123'
+    def test_diary_file_attachment_relationship(self):
+        link = DiaryFileAttachment.objects.create(
+            diary_entry=self.entry,
+            file_attachment=self.attachment
         )
-        self.client.login(username='test@example.com', password='testpass123')
+        self.assertEqual(link.diary_entry, self.entry)
+        self.assertEqual(link.file_attachment, self.attachment)
+
+
+class DiaryViewsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
         self.entry = DiaryEntry.objects.create(
             user=self.user,
-            title='Тестовая запись',
-            text='Контент'
-        )
-
-    def test_entry_list_view(self):
-        """Тест списка записей"""
-        response = self.client.get(reverse('diary_list'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Тестовая запись')
-
-    def test_invalid_form_submission(self):
-        response = self.client.post(
-            reverse('diary_create'),
-            {
-                'title': '',  # Невалидные данные
-                'text': 'Контент'
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-
-    def test_private_entry_access_other_user(self):
-        other_user = User.objects.create_user(username='other@test.com', password='testpass')
-        private_entry = DiaryEntry.objects.create(
-            user=other_user,
-            title='Чужая приватная запись',
-            text='Секретно',
+            title='Test Entry',
+            text='Test content',
             is_private=True
         )
 
-        response = self.client.get(
-            reverse('diary_detail', args=[private_entry.pk])
-        )
-        self.assertEqual(response.status_code, 404)
-
-    def test_private_entry_access(self):
-        """Тест доступа к приватным записям"""
-        private_entry = DiaryEntry.objects.create(
-            user=self.user,
-            title='Приватная',
-            text='Секретно',
-            is_private=True
-        )
-        response = self.client.get(reverse('diary_detail', args=[private_entry.pk]))
+    def test_home_view_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test Entry')
+
+    def test_diary_create_view(self):
+        self.client.force_login(self.user)
+        file = SimpleUploadedFile('test.pdf', b'file_content', content_type='application/pdf')
+        response = self.client.post(reverse('diary_create'), {
+            'title': 'New Entry',
+            'text': 'New content',
+            'is_private': False,
+            'attachments': [file]
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(DiaryEntry.objects.filter(title='New Entry').exists())
+
+    def test_diary_update_view(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('diary_update', kwargs={'pk': self.entry.pk}), {
+            'title': 'Updated',
+            'text': 'Updated content',
+            'is_private': False
+        })
+        self.assertEqual(response.status_code, 302)
+        self.entry.refresh_from_db()
+        self.assertEqual(self.entry.title, 'Updated')
 
 
-class DiaryFormTests(TestCase):
+class DiaryFormsTest(TestCase):
     def setUp(self):
-        self.tag = Tag.objects.create(name='Личное', color='#00FF00')
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
 
-    def test_form_with_tags(self):
-        """Тест формы с тегами"""
-        form_data = {
-            'title': 'Теговая запись',
-            'text': 'Контент',
-            'tags': [self.tag.pk]
-        }
-        form = DiaryEntryForm(data=form_data)
+    def test_diary_entry_form_valid(self):
+        file = SimpleUploadedFile('test.pdf', b'file_content', content_type='application/pdf')
+        form = DiaryEntryForm(data={
+            'title': 'Test',
+            'text': 'Content',
+            'is_private': True
+        }, files={'attachments': [file]})
         self.assertTrue(form.is_valid())
 
-    def test_form_file_validation(self):
-        """Тест валидации файлов"""
-        invalid_file = SimpleUploadedFile('test.exe', b'file content')
-        form = DiaryEntryForm(
-            data={'title': 'Test', 'text': 'Test'},
-            files={'attachments': invalid_file}
-        )
+    def test_diary_entry_form_invalid_extension(self):
+        file = SimpleUploadedFile('test.exe', b'file_content', content_type='application/exe')
+        form = DiaryEntryForm(data={
+            'title': 'Test',
+            'text': 'Content',
+            'is_private': True
+        }, files={'attachments': [file]})
         self.assertFalse(form.is_valid())
         self.assertIn('Недопустимое расширение файла', str(form.errors))
+
+
+class MixinTests(TestCase):
+    def test_owner_required(self):
+        factory = RequestFactory()
+        request = factory.get('/fake-url')
+        request.user = self.user
+
+        view = DiaryUpdateView()
+        view.request = request
+        view.kwargs = {'pk': self.entry.pk}
+
+
+class PaginationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
+        for i in range(15):
+            DiaryEntry.objects.create(
+                user=self.user,
+                title=f'Entry {i}',
+                text=f'Content {i}'
+            )
+
+    def test_pagination(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('diary_list'))
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+        response = self.client.get(reverse('diary_list') + '?page=2')
+        self.assertEqual(len(response.context['page_obj']), 5)

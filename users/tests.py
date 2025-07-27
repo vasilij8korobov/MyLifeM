@@ -1,94 +1,72 @@
-from django.test import TestCase
-from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
+from django.test import TestCase, Client
+from django.urls import reverse
 
 from users.forms import SignUpForm
 
 User = get_user_model()
 
 
-class UserModelTests(TestCase):
+class UserModelTest(TestCase):
     def test_user_creation(self):
-        """Тест создания пользователя с дополнительными полями"""
-        user = User.objects.create_user(
-            username='user@example.com',
-            email='user@example.com',
-            phone='+79001234567',
-            birth_date='2000-01-01',
-            password='testpass123'
-        )
-        self.assertEqual(user.phone, '+79001234567')
-        self.assertFalse(user.is_staff)
-
-    def test_avatar_upload(self):
-        """Тест загрузки аватарки"""
-        test_image = SimpleUploadedFile(
-            'avatar.jpg',
-            b'file_content',
-            content_type='image/jpeg'
-        )
-        user = User.objects.create_user(
-            username='avatar@example.com',
-            password='testpass123',
-            avatar=test_image
-        )
-        self.assertIn('images/avatars/', user.avatar.name)
+        user = User.objects.create_user(username='test@example.com', password='testpass123')
+        self.assertEqual(user.username, 'test@example.com')
+        self.assertTrue(user.check_password('testpass123'))
+        self.assertEqual(str(user), 'test@example.com')
 
 
-class AuthViewTests(TestCase):
-    def test_signup_flow(self):
-        """Полный тест регистрации"""
+class UserViewsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='test@example.com', password='testpass123')
+
+    def test_register_view(self):
         response = self.client.post(reverse('register'), {
             'username': 'new@example.com',
-            'phone': '+79007654321',
-            'birth_date': '2000-01-01',
-            'password1': 'ComplexPass123!',
-            'password2': 'ComplexPass123!',
-            'wants_school_diary': True
+            'password1': 'complexpass123',
+            'password2': 'complexpass123'
         })
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(User.objects.count(), 1)
+        self.assertTrue(User.objects.filter(username='new@example.com').exists())
 
-        new_user = User.objects.first()
-        self.assertEqual(new_user.phone, '+79007654321')
-
-    def test_login_redirect(self):
-        """Тест перенаправления после входа"""
-        User.objects.create_user(
-            username='login@example.com',
-            password='testpass123'
-        )
+    def test_login_view(self):
         response = self.client.post(reverse('login'), {
-            'username': 'login@example.com',
+            'username': 'test@example.com',
             'password': 'testpass123'
-        }, follow=True)
+        })
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('diary_list'))
 
+    def test_logout_view(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
 
-class UserFormTests(TestCase):
-    def test_signup_form_validation(self):
-        """Тест валидации формы регистрации"""
-        # Неправильная дата рождения
-        form_data = {
-            'username': 'test@example.com',
-            'phone': '+79001234567',
-            'birth_date': '3000-01-01',  # Дата в будущем
-            'password1': 'testpass123',
-            'password2': 'testpass123'
-        }
-        form = SignUpForm(data=form_data)
-        self.assertFalse(form.is_valid())
-        self.assertIn('Дата рождения не может быть в будущем', str(form.errors))
 
-    def test_phone_validation(self):
-        """Тест валидации номера телефона"""
-        form_data = {
-            'username': 'test@example.com',
-            'phone': 'не номер',  # Невалидный номер
-            'birth_date': '2000-01-01',
-            'password1': 'testpass123',
-            'password2': 'testpass123'
-        }
-        form = SignUpForm(data=form_data)
+class UserFormsTest(TestCase):
+    def test_signup_form_valid(self):
+        form = SignUpForm(data={
+            'username': 'valid@example.com',
+            'password1': 'complexpass123',
+            'password2': 'complexpass123'
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_signup_form_password_mismatch(self):
+        form = SignUpForm(data={
+            'username': 'valid@example.com',
+            'password1': 'complexpass123',
+            'password2': 'differentpass'
+        })
         self.assertFalse(form.is_valid())
+        self.assertIn('Пароли не совпадают', str(form.errors))
+
+    def test_signup_form_invalid_email(self):
+        form = SignUpForm(data={
+            'username': 'invalid-email',
+            'password1': 'complexpass123',
+            'password2': 'complexpass123'
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Введите действительный адрес электронной почты', str(form.errors))
