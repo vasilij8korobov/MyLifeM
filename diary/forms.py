@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import FileExtensionValidator
 
-from .models import GradeRecord, DiaryEntry, Tag, FileAttachment
+from .models import DiaryEntry, FileAttachment
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -23,23 +23,17 @@ class MultipleFileField(forms.FileField):
 
 
 class DiaryEntryForm(forms.ModelForm):
-
-    tags = forms.ModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
     attachments = MultipleFileField(
         required=False,
         validators=[FileExtensionValidator(
             allowed_extensions=['pdf', 'jpg', 'png', 'docx'],
             message='Недопустимое расширение файла'
-        )]
+        )],
     )
 
     class Meta:
         model = DiaryEntry
-        fields = ['title', 'text', 'is_private', 'tags']
+        fields = ['title', 'text', 'is_private']
         widgets = {
             'text': forms.Textarea(attrs={'rows': 5}),
         }
@@ -55,13 +49,3 @@ class DiaryEntryForm(forms.ModelForm):
                 )
                 instance.attachments.add(attachment)
         return instance
-
-
-# ниже лишнее
-class GradeForm(forms.ModelForm):
-    class Meta:
-        model = GradeRecord
-        fields = ['subject', 'grade', 'date', 'homework']
-        widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-        }

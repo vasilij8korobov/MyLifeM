@@ -1,9 +1,9 @@
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
-class OwnerRequiredMixin:
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if obj.user != request.user:
-            raise PermissionDenied
-        return super().dispatch(request, *args, **kwargs)
+class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def test_func(self):
+        return self.get_object().user == self.request.user

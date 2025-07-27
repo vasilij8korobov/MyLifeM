@@ -1,12 +1,5 @@
 from django.contrib import admin
-from .models import DiaryEntry, Tag
-
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color')
-    list_editable = ('color',)
-    search_fields = ('name',)
+from .models import DiaryEntry
 
 
 class DiaryEntryAdmin(admin.ModelAdmin):

@@ -29,14 +29,6 @@ class FileAttachment(models.Model):
         return f"Файл {self.file.name} к записи {self.diary_entry_id}"
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name = 'Теги')
-    color = models.CharField(max_length=7, default='#007bff')  # HEX цвет
-
-    def __str__(self):
-        return self.name
-
-
 class DiaryFileAttachment(models.Model):
     diary_entry = models.ForeignKey('DiaryEntry', on_delete=models.CASCADE)
     file_attachment = models.ForeignKey(FileAttachment, on_delete=models.CASCADE)
@@ -59,7 +51,6 @@ class DiaryEntry(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_private = models.BooleanField(default=True, verbose_name='Приватно')
 
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name='Теги')
     attachments = models.ManyToManyField(
         FileAttachment,
         through='DiaryFileAttachment',
@@ -67,6 +58,7 @@ class DiaryEntry(models.Model):
         related_name='entries',
         verbose_name = 'Загрузить файл'
     )
+    file = models.FileField(upload_to='diary_files/', null=True, blank=True)
 
     class Meta:
         ordering = ['-date', '-updated_at']
@@ -75,18 +67,3 @@ class DiaryEntry(models.Model):
 
     def __str__(self):
         return f'{self.title} (автор: {self.user.username})'
-
-
-# ниже лишнее
-class SchoolDiary(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    last_updated = models.DateTimeField(auto_now=True)
-
-
-class GradeRecord(models.Model):
-    diary = models.ForeignKey(SchoolDiary, on_delete=models.CASCADE)
-    subject = models.CharField(max_length=50, verbose_name="Название предмета")
-    grade = models.CharField(max_length=3, verbose_name="Оценка")
-    date = models.DateField(verbose_name="Дата записи")
-    homework = models.TextField(**NULLABLE, verbose_name="Домашнее задание")
-    reminder = models.TextField(**NULLABLE, verbose_name="Напоминание")

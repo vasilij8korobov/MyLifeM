@@ -74,7 +74,7 @@ class DiaryListView(LoginRequiredMixin, ListView):
         return context
 
 
-class DiaryDetailView(LoginRequiredMixin, OwnerRequiredMixin, DetailView):
+class DiaryDetailView(OwnerRequiredMixin, LoginRequiredMixin, DetailView):
     model = DiaryEntry
     template_name = 'diary/diary_detail.html'
     context_object_name = 'entry'
@@ -103,7 +103,7 @@ class DiaryCreateView(LoginRequiredMixin, CreateView):
         return response
 
 
-class DiaryUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
+class DiaryUpdateView(OwnerRequiredMixin, LoginRequiredMixin, UpdateView):
     model = DiaryEntry
     form_class = DiaryEntryForm
     template_name = 'diary/diary_form.html'
@@ -113,7 +113,7 @@ class DiaryUpdateView(LoginRequiredMixin, OwnerRequiredMixin, UpdateView):
         return DiaryEntry.objects.filter(user=self.request.user)
 
 
-class DiaryDeleteView(LoginRequiredMixin, OwnerRequiredMixin, DeleteView):
+class DiaryDeleteView(OwnerRequiredMixin, LoginRequiredMixin, DeleteView):
     model = DiaryEntry
     template_name = 'diary/diary_confirm_delete.html'
     success_url = reverse_lazy('diary_list')
