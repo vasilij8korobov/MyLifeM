@@ -24,6 +24,7 @@ class MultipleFileField(forms.FileField):
 
 class DiaryEntryForm(forms.ModelForm):
     attachments = MultipleFileField(
+        label='',
         required=False,
         validators=[FileExtensionValidator(
             allowed_extensions=['pdf', 'jpg', 'png', 'docx'],
